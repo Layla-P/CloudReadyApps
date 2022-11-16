@@ -1,0 +1,114 @@
+Add to API project
+
+  <ItemGroup>
+    <PackageReference Include="Steeltoe.Common.Hosting" Version="3.1.0" />
+    <PackageReference Include="Steeltoe.Discovery.Eureka" Version="3.1.0" />
+  </ItemGroup>
+
+
+
+services.AddDiscoveryClient();
+
+
+
+.UseCloudHosting(41011, 44361)
+
+
+
+
+"Urls": "https://localhost:44361",
+	"Eureka": {
+		"Client": {
+			"serviceUrl": "http://localhost:8761/eureka/",
+			"ShouldRegisterWithEureka": true,
+			"ShouldFetchRegistry": true
+		}
+	}
+	
+	
+-----------------------------------------------------------------
+
+  <ItemGroup>
+    <PackageReference Include="Steeltoe.Common.Hosting" Version="3.1.0" />
+    <PackageReference Include="Steeltoe.Discovery.Eureka" Version="3.1.0" />
+  </ItemGroup>
+
+
+
+
+  "Eureka": {
+    "Client": {
+      "ShouldRegisterWithEureka": false,
+      "ShouldFetchRegistry": true
+    }
+
+  }
+  
+  
+ EUREKAFETCHSERVICE
+ 
+  internal class EurekaFetchService : IHostedService
+    {
+		private readonly DiscoveryClient _discoveryClient;
+		private readonly ILogger<EurekaFetchService> _logger;
+		private readonly HttpClient _client;
+
+		public EurekaFetchService(IDiscoveryClient discoveryClient, HttpClient client, ILogger<EurekaFetchService> logger)
+		{
+			_discoveryClient = discoveryClient as DiscoveryClient;
+			_client = client;
+			_logger = logger;
+		}
+	}
+	
+	
+ public Task StopAsync(CancellationToken cancellationToken)
+	{
+		return _discoveryClient.ShutdownAsync();
+	}
+		
+		
+		
+	
+	
+public async Task StartAsync(CancellationToken cancellationToken)
+        {
+
+			var apps = _discoveryClient.Applications.GetRegisteredApplications();
+	
+			var count = 0;
+			
+			_logger.LogInformation(@$"There are {count} apps registered with Eureka");
+		}	
+	
+	
+	
+	
+foreach (var app in apps)
+{
+	var firstInstance = app.Instances[0];
+	_logger.LogInformation(@$"Name:{app.Name} and hostname: {firstInstance.HostName} and 
+		port:{firstInstance.SecurePort}");
+	count++;
+	
+
+}	
+	
+	
+try
+{
+	if (app.Name.ToLower() == "dadjokeapi" && !string.IsNullOrEmpty(firstInstance.HomePageUrl))
+	{
+		_logger.LogError($"{firstInstance.HomePageUrl}dadjoke");
+		var response = await _httpClient.GetStringAsync($"{firstInstance.HomePageUrl}dadjoke");
+		_logger.LogInformation(response);
+
+	}
+}
+catch(Exception ex)
+{
+	_logger.LogError(ex);
+}
+
+
+ services.AddHostedService<EurekaFetchService>();
