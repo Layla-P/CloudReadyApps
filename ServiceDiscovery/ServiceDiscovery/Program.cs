@@ -1,7 +1,4 @@
-using Microsoft.Extensions.Logging;
-using Steeltoe.Management.Endpoint;
-using Steeltoe.Management.Endpoint.Metrics;
-using Steeltoe.Management.Tracing;
+using Steeltoe.Discovery.Eureka;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -9,14 +6,7 @@ var builder = WebApplication.CreateBuilder(args);
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
-builder.Services.AddLogging();
-
-builder.AddHealthActuator();
-builder.AddInfoActuator();
-builder.AddLoggersActuator();
-builder.Services.AddPrometheusActuator();
-builder.Services.AddDistributedTracingAspNetCore();
-
+builder.Services.
 
 var app = builder.Build();
 
@@ -34,9 +24,9 @@ var summaries = new[]
     "Freezing", "Bracing", "Chilly", "Cool", "Mild", "Warm", "Balmy", "Hot", "Sweltering", "Scorching"
 };
 
-app.MapGet("/weatherforecast", (ILogger<Program> logger) =>
+app.MapGet("/weatherforecast", () =>
 {
-       var forecast = Enumerable.Range(1, 5).Select(index =>
+    var forecast = Enumerable.Range(1, 5).Select(index =>
         new WeatherForecast
         (
             DateTime.Now.AddDays(index),
@@ -44,7 +34,6 @@ app.MapGet("/weatherforecast", (ILogger<Program> logger) =>
             summaries[Random.Shared.Next(summaries.Length)]
         ))
         .ToArray();
-    logger.LogInformation(forecast.Length.ToString());
     return forecast;
 })
 .WithName("GetWeatherForecast");
